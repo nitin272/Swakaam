@@ -1,7 +1,7 @@
 const Wizard_List = require('../models/user.model');
 const bcrypt = require('bcrypt');
 
-class Wizard_ListController {
+class WizardListController {
     // Register a new user
     static async register(req, res) {
         const { email, username, password, authType, expertise, maxLevel, profilePicture, contactNumber, location, hiredType } = req.body;
@@ -105,4 +105,4 @@ class Wizard_ListController {
     }
 }
 
-module.exports = Wizard_ListController;
+module.exports = WizardListController;

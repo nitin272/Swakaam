@@ -1,30 +1,37 @@
 const Wizard_List = require('../models/user.model');
 const bcrypt = require('bcrypt');
-
+const {uploadOnCloudinary} = require('../config/cloudinary');
 class WizardListController {
     // Register a new user
     static async register(req, res) {
-        const { email, username, password, authType, expertise, maxLevel, profilePicture, contactNumber, location, hiredType } = req.body;
-
+        const { email, username, password, authType, expertise, maxLevel, contactNumber, location, hiredType } = req.body;
+        
         try {
             // Check if user already exists
-            const existingUser = await Wizard_List.findOne({ email });
+            const existingUser = await User.findOne({ email });
             if (existingUser) {
                 return res.status(400).json({ message: 'User already exists' });
             }
-
+    
             // Hash the password
             const hashedPassword = await bcrypt.hash(password, 10);
-
+    
+            // Upload profile picture to Cloudinary if provided
+            let profilePicture = null;
+            if (req.file) {
+                const { secure_url } = await uploadOnCloudinary(req.file.path);
+                profilePicture = secure_url;
+            }
+    
             // Create a new user
             const newUser = new User({
                 email,
                 username,
                 password: hashedPassword,
                 authType,
-                expertise: expertise || [],
+                expertise: expertise ? expertise.split(',') : [], // Ensure array format
                 projectsCompleted: 0,
-                maxLevel,
+                maxLevel: maxLevel || 0, // Default value if not provided
                 credibilityScore: 0,
                 eligible: false,
                 profilePicture,
@@ -36,9 +43,9 @@ class WizardListController {
                 hiredType,
                 lastHired: 0
             });
-
+    
             await newUser.save();
-
+    
             res.status(201).json({ message: 'User registered successfully', user: newUser });
         } catch (error) {
             console.error(error);
@@ -78,11 +85,25 @@ class WizardListController {
         const updatedData = req.body;
 
         try {
-            const user = await Wizard_List.findByIdAndUpdate(id, updatedData, { new: true });
+            let user = await Wizard_List.findById(id);
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
-            res.status(200).json({ message: 'User updated successfully', user });
+
+            // Handle profile picture update
+            if (req.file) {
+                const { secure_url } = await uploadOnCloudinary(req.file.path);
+                // Delete old profile picture from Cloudinary (if exists)
+                if (user.profilePicture) {
+                    const publicId = user.profilePicture.split('/').pop().split('.')[0]; // Extract public ID from URL
+                    await cloudinary.uploader.destroy(publicId);
+                }
+                updatedData.profilePicture = secure_url;
+            }
+
+            // Update user in database
+            const updatedUser = await Wizard_List.findByIdAndUpdate(id, updatedData, { new: true });
+            res.status(200).json({ message: 'User updated successfully', updatedUser });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Server error' });

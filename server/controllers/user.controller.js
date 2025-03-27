@@ -1,11 +1,20 @@
 const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const { uploadOnCloudinary } = require('../config/cloudinary');
 class UserController {
     // **User Registration (CREATE)**
     static async register(req, res) {
-        const { email, username, password, level, profilePicture, contactNumber, UserType } = req.body;
+        const { email, username, password, level, contactNumber, UserType } = req.body;
+        let profilePicture = null;
+        if (req.file) {
+            const { secure_url } = await uploadOnCloudinary(req.file.path);
+            profilePicture = secure_url;
+        }
+        // Check if all required fields are provided
+        if (!email || !username || !password || !level || !contactNumber) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
 
         try {
             const existingUser = await User.findOne({ email });
@@ -100,16 +109,29 @@ class UserController {
         const updateData = req.body;
 
         try {
+            let user = await User.findById(id);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
             // Hash password if being updated
             if (updateData.password) {
                 updateData.password = await bcrypt.hash(updateData.password, 10);
             }
 
-            const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true });
-            if (!updatedUser) {
-                return res.status(404).json({ message: 'User not found' });
+            // Handle profile picture update
+            if (req.file) {
+                const { secure_url } = await uploadOnCloudinary(req.file.path);
+                // Delete old profile picture from Cloudinary (if exists)
+                if (user.profilePicture) {
+                    const publicId = user.profilePicture.split('/').pop().split('.')[0]; // Extract public ID from URL
+                    await cloudinary.uploader.destroy(publicId);
+                }
+                updateData.profilePicture = secure_url;
             }
 
+            // Update user in database
+            const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true });
             res.status(200).json({ message: 'User updated successfully', updatedUser });
         } catch (error) {
             console.error(error);

@@ -39,26 +39,17 @@ import SettingsPage from './pages/SettingsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 const App = () => {
-  // In a real app, this would come from your auth context/state management
-  const [userRole, setUserRole] = useState('freelancer','company','admin'); // Example roles: 'freelancer', 'company', 'admin'
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   // Protected Route Wrapper
-  const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-    if (!isAuthenticated) {
-      return <Navigate to="/login" replace />;
-    }
-
-    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-      return <Navigate to="/dashboard" replace />;
-    }
-
+  const ProtectedRoute = ({ children }) => {
     return (
-      <MainLayout userRole={userRole}>
+      <MainLayout>
         {children}
       </MainLayout>
     );
   };
+  
 
   return (
     <Router>

@@ -1,13 +1,12 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-
-    username: {
+    email: {
         type: String,
         required: true,
         unique: true
     },
-    email: {
+    username: {
         type: String,
         required: true,
         unique: true
@@ -16,71 +15,18 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    authType: {
-        type: String,
-        required: true,
-        enum: ['email', 'google', 'facebook']
-    },
-    expertise: {
-        type: [String], // Array of expertise areas
-        default: []
-    },
-    projectsCompleted: {
-        type: Number,
-        default: 0
-    },
-    maxLevel: {
-        type: String,
-        required: false
-    },
-    credibilityScore: {
-        type: Number,
-        default: 0
-    },
-    eligible: {
-        type: Boolean,
-        default: false
-    },
     profilePicture: {
-        type: String,
-        required: false
+        type: String 
     },
     contactNumber: {
-        type: String,
-        required: false
+        type: String
     },
-    location: {
-        type: String,
-        required: false
-    },
-    ratingsAndReviews: {
-        type: [{
-            reviewer: String,
-            rating: Number, // Rating out of 5
-            comment: String,
-            date: Date
-        }],
+    feedbackNotes: {
+        type: [String], 
         default: []
-    },
-    dateJoined: {
-        type: Date,
-        default: Date.now
-    },
-    workingFor: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Company', // Foreign Key reference to Company model
-        required: false
-    },
-    hiredType: {
-        type: String,
-        required: false
-    },
-    lastHired: {
-        type: Number, 
-        default: 0
     }
-}, { timestamps: true });
+},{ timestamps: true});
 
-const User = mongoose.model('wizard_List', userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

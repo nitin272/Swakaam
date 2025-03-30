@@ -40,7 +40,7 @@ import NotFoundPage from './pages/NotFoundPage';
 
 const App = () => {
   // In a real app, this would come from your auth context/state management
-  const [userRole, setUserRole] = useState('company');
+  const [userRole, setUserRole] = useState('freelancer');
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   // Protected Route Wrapper

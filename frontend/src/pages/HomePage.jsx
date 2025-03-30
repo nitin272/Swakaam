@@ -90,21 +90,7 @@ export default function HomePage() {
                 </Button>
               </div>
             </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative"
-            >
-              <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl border border-gray-200">
-                <img
-                  src="/hero-image.jpg"
-                  alt="Platform Preview"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/20 to-transparent" />
-              </div>
-            </motion.div>
+         
           </div>
         </div>
       </section>
